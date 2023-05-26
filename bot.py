@@ -6,7 +6,8 @@ import urllib.parse
 import qrcode
 from io import BytesIO
 
-DOMAIN = 'http://127.0.0.1:8000/'
+#DOMAIN = 'http://127.0.0.1:8000/'
+DOMAIN = 'https://cutmylink.ink'
 BOT_TOKEN = '6266043956:AAHtnHEkXDWgoPwe0ERJWUYE-h0Bbeh6VoE'
 
 bot = telebot.TeleBot(BOT_TOKEN)

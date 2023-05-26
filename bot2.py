@@ -6,7 +6,8 @@ import urllib.parse
 import qrcode
 from io import BytesIO
 
-DOMAIN = 'http://127.0.0.1:8000/'
+#DOMAIN = 'http://127.0.0.1:8000/'
+DOMAIN = 'https://cutmylink.ink/'
 BOT_TOKEN = '6266043956:AAHtnHEkXDWgoPwe0ERJWUYE-h0Bbeh6VoE'
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -23,7 +24,9 @@ def send_welcome(message):
     user_markup.row('Мої посилання', 'Скоротити посилання')
     tg_id = message.from_user.id
     payload = {'telegram_id':tg_id}
+    print(tg_id)
     create = requests.post(DOMAIN+'api/v1/user/create', headers={'Content-Type':'application/json'}, data = json.dumps(payload)).json()
+    print(requests.post(DOMAIN+'api/v1/user/create', headers={'Content-Type':'application/json'}, data = json.dumps(payload)).text)
     if tg_id not in user_states:
         user_states[tg_id] = []
     if tg_id not in current_links:
@@ -47,9 +50,10 @@ def send_welcome(message):
 
 @bot.message_handler(func=lambda message: message.text == 'Мої посилання')
 def get_links(message):
-    raw_json = requests.get(DOMAIN + 'api/v1/link/?user_id=' + str(1)).json()
+    raw_json = requests.get(DOMAIN + 'api/v1/link/?user_id=' + str(message.chat.id)).json()
     change_state(message.chat.id, 'MyLinks')
     current_links[message.chat.id] = raw_json
+    print(raw_json)
     link_markup = telebot.types.InlineKeyboardMarkup()
     for i in raw_json:
         url = DOMAIN + i['url']
@@ -188,6 +192,7 @@ def cut_link_step2(message):
     data = {'url':backhalf_link, 'telegram_id': message.chat.id, 'reidrect_url': new_link[message.chat.id]['redirect_link']}
     json_data = json.dumps(data)
     response = requests.post(DOMAIN + "api/v1/link/", headers={'Content-Type':'application/json'}, data = json_data)
+    print(response.text)
     if response.status_code == 200:
         edit_link_markup = telebot.types.ReplyKeyboardMarkup(True, False)
         edit_link_markup.row('Назад')
@@ -210,7 +215,7 @@ def detailed_stats(message):
     date_from = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]+"+03:00"
     date_from = urllib.parse.quote_plus(date_from)
     date_to = urllib.parse.quote_plus(date_to)
-    stat_link = DOMAIN + "?link=" + url +"&date_from=" + date_from + "&date_to=" + date_to
+    stat_link = DOMAIN + "stat/?link=" + url +"&date_from=" + date_from + "&date_to=" + date_to
     keyboard = telebot.types.InlineKeyboardMarkup()
     url_button = telebot.types.InlineKeyboardButton(text='Перейти', url=stat_link)
     keyboard.add(url_button)

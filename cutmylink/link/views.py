@@ -13,7 +13,11 @@ from django.db.models import Q
 from urllib.parse import unquote
 from django.db.models import Count
 import locale
+from django.shortcuts import render
 
+
+def index(request):
+    return render(request, 'index.html')
 class ShortLinkRedirectView(APIView):
     def get(self, request, short_code):
         try:
@@ -70,8 +74,8 @@ class LinkAPIView(generics.ListCreateAPIView):
     serializer_class = LinkSerializer
 
     def get_queryset(self,request):
-        user_id = self.request.query_params.get('user_id')
-        return Link.objects.filter(user_id=user_id).values('id', 'url', 'redirect_url', 'created_at', 'updated_at')
+        user = User.objects.get(telegram_id=request.query_params.get('user_id'))
+        return Link.objects.filter(user_id=user.id).values('id', 'url', 'redirect_url', 'created_at', 'updated_at')
 
     def list(self, request):
         links = list(self.get_queryset(request))

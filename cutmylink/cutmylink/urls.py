@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path
 
 from link.views import *
-
+from django.conf import settings
+from django.conf.urls.static import static
 urlpatterns = [
+    path('stat/', index, name='index'),
     path('admin/', admin.site.urls),
     path('api/v1/link/', LinkAPIView.as_view()),
     path('api/v1/link/<int:pk>/delete', LinkAPIDelete.as_view()),
